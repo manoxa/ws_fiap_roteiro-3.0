@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedido xmlns="http://www.fiap.com/pedido" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fiap.com/pedido ../xsd/pedido.xsd ">
+  <id>A004</id>
+  <cpf>548695325</cpf>
+  <vencimento>01/11/2015</vencimento>
+  <produto>Amendoi Ykari</produto>
+  <transportadora>Granero</transportadora>
+  <valor>14.30</valor>
+</pedido>

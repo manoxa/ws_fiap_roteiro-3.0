@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedido xmlns="http://www.fiap.com/pedido" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fiap.com/pedido ../xsd/pedido.xsd ">
+  <id>A002</id>
+  <cpf>06280475518</cpf>
+  <vencimento>15/11/2015</vencimento>
+  <produto>Cafeteira Arno 320</produto>
+  <transportadora>Granero</transportadora>
+  <valor>185.00</valor>
+</pedido>

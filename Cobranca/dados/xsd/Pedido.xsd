@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.fiap.com/pedido" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.fiap.com/pedido">
+
+    <element name="pedido">
+    	<complexType>
+    		<sequence>
+    			<element name="id" type="string"></element>
+    			<element name="cpf" type="string"></element>
+    			<element name="vencimento" type="string"></element>
+    			<element name="produto" type="string"></element>
+    			<element name="transportadora" type="string"></element>
+    			<element name="valor" type="double"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+</schema>

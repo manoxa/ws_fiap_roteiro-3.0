@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <!-- configura a URL e logins de acesso ao ActiveMQ -->
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+      <property name="brokerURL" value="tcp://localhost:61616"/>
+      <property name="userName" value="admin"/>
+      <property name="password" value="admin"/>
+  </bean>
+
+   <!-- configura um datasource para trabalhar com o MySQL -->
+   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	  <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	  <property name="url" value="jdbc:mysql://localhost:3306/cobranca"/>
+	  <property name="username" value="root"/>
+	  <property name="password" value=""/>
+	</bean>
+
+	<!-- configura o componente Camel SQL para usar o data source JDBC criado acima -->
+	<bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+	  <property name="dataSource" ref="dataSource"/>
+	</bean>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <propertyPlaceholder location="classpath:sql.properties" id="properties"/>
+  <jmxAgent disabled="false" onlyRegisterProcessorWithCustomId="false" createConnector="false" usePlatformMBeanServer="true" registerNewRoutes="true" statisticsLevel="All" includeHostName="false" mask="false"/>
+  <route id="cobranca-geraboleto">
+    <from uri="activemq:queue:cobranca"/>
+    <bean method="processa" beanType="com.fiap.cobranca.processor.BoletoProcessor"/>
+    <log message="Boleto ${body}"/>
+    <to uri="sql:{{sql.deleteBoleto}}"/>
+    <to uri="sql:{{sql.insertBoleto}}"/>
+    <log message="Boleto ${body.id} inserido."/>
+    <marshal>
+      <json library="Jackson"/>
+    </marshal>
+    <to uri="file:c:\dados\boleto?fileName=boleto-${date:now:yyyyMMddHHmmssSSS}.txt"/>
+  </route>
+  <route id="cobranca-processatitulo">
+    <from uri="file:C:\dados\boleto_processado"/>
+    <unmarshal>
+      <json library="Jackson" unmarshalTypeName="com.fiap.cobranca.model.jaxb.boleto.Boleto"/>
+    </unmarshal>
+    <choice>
+      <when>
+        <simple>${body.pago}</simple>
+        <log message="Titulo ${body.id} pago."/>
+        <to uri="direct:baixa-cobranca"/>
+      </when>
+      <otherwise>
+        <log message="Titulo ${body.id} nao foi pago."/>
+        <bean method="verificaDeposito" beanType="com.fiap.cobranca.processor.BoletoProcessor"/>
+        <choice>
+          <when>
+            <simple>${body.deposito}</simple>
+            <log message="Boleto ${body.id} foi pago por deposito."/>
+            <to uri="direct:baixa-cobranca"/>
+            <to uri="direct:baixa-banco"/>
+          </when>
+          <otherwise>
+            <log message="Boleto ${body.id} em aberto."/>
+            <to uri="mock:senmail"/>
+            <to uri="C:\dados\boleto_cobrado"/>
+          </otherwise>
+        </choice>
+      </otherwise>
+    </choice>
+  </route>
+  <route id="cobranca-baixa">
+    <from uri="direct:baixa-cobranca"/>
+    <log message="Efetuando baixa do boleto ${body.id}"/>
+    <to uri="sql:{{sql.updateBoleto}}"/>
+    <log message="Boleto ${body.id} baixado."/>
+  </route>
+  <route id="cobranca-baixabanco">
+    <from uri="direct:baixa-banco"/>
+    <log message="Efetuando baixa no banco para o boleto id:${body.id}"/>
+    <setBody>
+      <simple>${body.id}</simple>
+    </setBody>
+    <recipientList>
+      <simple>http4://localhost:8181/banco/baixa/id/${body}</simple>
+    </recipientList>
+  </route>
+</camelContext>
+
+</blueprint>

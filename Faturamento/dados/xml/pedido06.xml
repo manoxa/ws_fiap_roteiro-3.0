@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedido xmlns="http://www.fiap.com/pedido" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fiap.com/pedido ../xsd/pedido.xsd ">
+  <id>A006</id>
+  <cpf>123957862</cpf>
+  <vencimento>07/10/2015</vencimento>
+  <produto>Ventilador Arno</produto>
+  <transportadora>Correio</transportadora>
+  <valor>652.00</valor>
+</pedido>

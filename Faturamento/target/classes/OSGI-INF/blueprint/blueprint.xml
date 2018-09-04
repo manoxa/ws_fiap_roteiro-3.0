@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <!-- configura a URL e logins de acesso ao ActiveMQ -->
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+      <property name="brokerURL" value="tcp://localhost:61616"/>
+      <property name="userName" value="admin"/>
+      <property name="password" value="admin"/>
+  </bean>
+  
+  <!-- configura um datasource para trabalhar com o MySQL -->
+   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	  <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	  <property name="url" value="jdbc:mysql://localhost:3306/cobranca"/>
+	  <property name="username" value="root"/>
+	  <property name="password" value=""/>
+	</bean>
+	
+  <!-- configura o componente Camel SQL para usar o data source JDBC criado acima -->
+	<bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+	  <property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+<camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <propertyPlaceholder location="classpath:sql.properties" id="properties"/>
+  <jmxAgent disabled="false" onlyRegisterProcessorWithCustomId="false" createConnector="false" usePlatformMBeanServer="true" registerNewRoutes="true" statisticsLevel="All" includeHostName="false" mask="false"/>
+  <route id="faturamento_pedido">
+    <from uri="file:C:\dados\pedido"/>
+    <unmarshal>
+      <jaxb contextPath="com.fiap.faturamento.jaxb.pedido"/>
+    </unmarshal>
+    <log message="Recebido o pedido ${body}"/>
+    <multicast>
+      <to uri="activemq:queue:cobranca"/>
+      <to uri="direct:geranota"/>
+    </multicast>
+  </route>
+  <route id="faturamento_geranota">
+    <from uri="direct:geranota"/>
+    <log message="Recebido o pedido ${body}"/>
+    <bean method="processar" beanType="com.fiap.faturamento.processor.PedidoProcessor"/>
+    <log message="Valor dos impostos: ${body.impostos} da NF: ${body.numeroNf}"/>
+    <to uri="sql:{{sql.deleteNF}}"/>
+    <to uri="sql:{{sql.insertNF}}"/>
+    <log message="Nova Nota Fiscal Inserida"/>
+  </route>
+</camelContext>
+
+</blueprint>

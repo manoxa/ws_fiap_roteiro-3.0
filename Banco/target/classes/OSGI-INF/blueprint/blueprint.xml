@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+<!-- Configura o Servlet do Camel com OSGi HttpService -->
+<reference id="httpService" interface="org.osgi.service.http.HttpService"/>
+
+<bean id="camelServlet" class="org.apache.camel.component.servlet.CamelHttpTransportServlet"/>
+
+<bean id="registerCamel" class="org.apache.camel.component.servlet.osgi.OsgiServletRegisterer"
+     init-method="register"
+     destroy-method="unregister">
+     <property name="alias" value="/banco"/>
+ 	<property name="httpService" ref="httpService"/>
+ 	<property name="servlet" ref="camelServlet"/>
+</bean>	
+
+  <!-- configura o rest para utilizar o componente camel-servlet, no modo json -->
+  <!-- e o retorno json em pretty print mode -->
+  <!-- configura o context path e numero de porta que o Aapache Tomcat executara essa aplicacao,
+        por estarmos utilizando o componente servlet, entao precisamos ajudar o Camel informando 
+        todos esses detalhes para que o cAmel saiba a url dos servicos REST.
+   -->
+   <!-- 
+  <restConfiguration component="servlet" host="localhost" port="9999" contextPath="/banco" bindingMode="json">
+    <dataFormatProperty key="prettyPrint" value="true"/>
+  </restConfiguration>
+  <rest path="/baixa">
+    <put uri="/id/{id}">
+      <description>Altera titulo para recebido</description>
+      <to uri="direct:baixaTitulo"/>
+    </put>
+  </rest>
+    -->
+
+<camelContext xmlns="http://camel.apache.org/schema/blueprint">
+  <jmxAgent disabled="false" onlyRegisterProcessorWithCustomId="false" createConnector="false" usePlatformMBeanServer="true" registerNewRoutes="true" statisticsLevel="All" includeHostName="false" mask="false"/>
+  <restConfiguration component="servlet" host="localhost" port="8181" contextPath="/banco" bindingMode="off"/>
+  <rest path="/baixa">
+    <get uri="/id/{id}">
+      <description>Altera titulo para recebido</description>
+      <to uri="direct:baixaTitulo"/>
+    </get>
+    <post uri="/id/{id}">
+      <description>Altera titulo para recebido</description>
+      <to uri="direct:baixaTitulo"/>
+    </post>
+  </rest>
+  <route id="banco-processatitulo">
+    <from uri="file:C:\dados\boleto"/>
+    <unmarshal>
+      <json library="Jackson" unmarshalTypeName="com.fiap.banco.model.Boleto"/>
+    </unmarshal>
+    <log message="Processar o boleto: ${body.id}"/>
+    <bean beanType="com.fiap.banco.processor.TituloProcessor"/>
+    <marshal>
+      <json library="Jackson"/>
+    </marshal>
+    <to uri="file:C:\dados\boleto_processado?fileName=boleto-processado-${date:now:yyyyMMddHHmmssSSS}.txt"/>
+  </route>
+  <route id="banco-baixa">
+    <from uri="direct:baixaTitulo"/>
+    <to uri="mock:baixaboleto"/>
+    <log message="Banco: Titulo baixado."/>
+    <setBody>
+      <simple>Titulo ${body} baixado.</simple>
+    </setBody>
+  </route>
+</camelContext>
+
+</blueprint>

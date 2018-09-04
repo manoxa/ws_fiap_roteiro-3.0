@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.fiap.com/boleto" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.fiap.com/boleto">
+
+
+    <element name="boleto">
+    	<complexType>
+    		<sequence>
+    			<element name="id" type="string"></element>
+    			<element name="vencimento" type="string"></element>
+    			<element name="cpf" type="string"></element>
+    			<element name="processamento" type="string"></element>
+    			<element name="recebedora" type="string"></element>
+    			<element name="valor" type="double"></element>
+    			<element name="pago" type="boolean"></element>
+    			<element name="deposito" type="boolean"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+</schema>

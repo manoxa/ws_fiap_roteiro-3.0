@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.fiap.com/notafiscal" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.fiap.com/notafiscal">
+
+    <element name="notafiscal">
+    	<complexType>
+    		<sequence>
+    			<element name="numero_nf" type="string"></element>
+    			<element name="vencimento" type="string"></element>
+    			<element name="cpf" type="string"></element>
+    			<element name="valor" type="double"></element>
+    			<element name="impostos" type="double"></element>
+    			<element name="transportadora" type="string"></element>
+    			<element name="produto" type="string"></element>
+    			<element name="emissao" type="string"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+</schema>

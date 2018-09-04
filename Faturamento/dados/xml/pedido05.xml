@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedido xmlns="http://www.fiap.com/pedido" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fiap.com/pedido ../xsd/pedido.xsd ">
+  <id>A005</id>
+  <cpf>012365478</cpf>
+  <vencimento>14/11/2015</vencimento>
+  <produto>TV LG Web</produto>
+  <transportadora>Correios</transportadora>
+  <valor>2999.00</valor>
+</pedido>

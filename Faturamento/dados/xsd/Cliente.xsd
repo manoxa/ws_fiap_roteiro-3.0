@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.fiap.com/cliente" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.fiap.com/cliente">
+
+    <element name="cliente">
+    	<complexType>
+    		<sequence>
+    			<element name="cpf" type="string"></element>
+    			<element name="nome" type="string"></element>
+    			<element name="sobrenome" type="string"></element>
+    			<element name="endereco" type="string"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+</schema>
