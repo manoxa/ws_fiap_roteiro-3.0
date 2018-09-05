@@ -4,7 +4,7 @@ Trabalho sobre ESB Apache Camel, do curso de MBA - Desenvolvimento Java, SOA e I
 Camel Router Project for Blueprint (OSGi)
 =========================================
 
-To build this project use
+To build projects select each one and use
 
     mvn install
 
@@ -20,6 +20,8 @@ or Apache Karaf. You can run the following command from its shell:
     osgi:install -s mvn:com.fiap/cobranca/1.2.7-SNAPSHOT
     
     osgi:update --force 314 mvn:com.fiap/cobranca/1.2.7-SNAPSHOT
+    
+    osgi:install -s mvn:com.fiap/faturamento/1.0.0-SNAPSHOT
 
 For more help see the Apache Camel documentation
 
