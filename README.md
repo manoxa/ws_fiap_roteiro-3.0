@@ -16,6 +16,10 @@ To deploy the project in OSGi. For example using Apache ServiceMix
 or Apache Karaf. You can run the following command from its shell:
 
     osgi:install -s mvn:com.fiap/banco/1.0.7-SNAPSHOT
+    
+    osgi:install -s mvn:com.fiap/cobranca/1.2.7-SNAPSHOT
+    
+    osgi:update --force 314 mvn:com.fiap/cobranca/1.2.7-SNAPSHOT
 
 For more help see the Apache Camel documentation
 
